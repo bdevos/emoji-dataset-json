@@ -4,8 +4,8 @@ This repo contains TypeScript code to parse the [unicode emoji data](https://uni
 
 The generated [dataset](dataset/emoji.json) is relatively small (around 60KB).
 
-| :warning: | There are some issues when hair styles and skin tones are combined, I hope to have these edge cases figured out soon. |
-| :-------: | :-------------------------------------------------------------------------------------------------------------------- |
+| :warning: | I haven't had the time to properly check everything, so if you find any issues with the data, let me know |
+| :-------: | :-------------------------------------------------------------------------------------------------------- |
 
 ## Generate dataset
 

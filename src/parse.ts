@@ -22,6 +22,10 @@ export type Data = {
   components: Subgroup[]
 }
 
+const zeroWidthJoiner = '‍'
+
+const stringToUTF8Bytes = (str: string) => new TextEncoder().encode(str)
+
 const groupRegex = /# group: ?(?<group>.*?)$/
 const subgroupRegex = /# subgroup: ?(?<subgroup>.*?)$/
 const emojiRegex = /; (?<status>[a-z-]*).*# (?<emoji>[^ ]*) [^ ]* (?<name>.*)$/
@@ -100,9 +104,16 @@ const emojiCount = ({ groups }: Data) =>
 
 const filterSkinToneVariantsEmoji = (
   emoji: Emoji[],
-  skinTones: Emoji[],
+  components: Subgroup[],
 ): Emoji[] => {
-  const skinToneEmoji = skinTones.map(({ emoji }) => emoji)
+  const skinToneEmoji =
+    components.find(({ subgroup }) => subgroup === 'skin-tone')?.emoji.map((
+      { emoji },
+    ) => emoji) ?? []
+  const hairStyleEmoji =
+    components.find(({ subgroup }) => subgroup === 'hair-style')?.emoji.map((
+      { emoji },
+    ) => emoji) ?? []
 
   return emoji
     .map((baseEmoji) => {
@@ -117,27 +128,45 @@ const filterSkinToneVariantsEmoji = (
         ...baseEmoji,
         skinTones: skinToneVersions.length > 0 ? skinToneVersions : undefined,
       }
-    }).filter((baseEmoji) =>
+    })
+    .map((baseEmoji) => {
+      const hairStyle = hairStyleEmoji.find((hairStyle) =>
+        baseEmoji.emoji.endsWith(hairStyle)
+      )
+
+      if (!hairStyle) {
+        return baseEmoji
+      }
+
+      // REMARK: At the moment none of these hair style emoji have alt, so will skip that for brevety
+      const skinToneVersions = emoji.filter((compareEmoji) =>
+        skinToneEmoji.some((skinTone) =>
+          compareEmoji.emoji ===
+            baseEmoji.emoji.replace(hairStyle, '').replace(
+                zeroWidthJoiner,
+                '',
+              ) + skinTone + zeroWidthJoiner + hairStyle
+        )
+      ).map(({ emoji }) => emoji)
+
+      return {
+        ...baseEmoji,
+        skinTones: skinToneVersions.length > 0 ? skinToneVersions : undefined,
+      }
+    })
+    .filter((baseEmoji) =>
       !skinToneEmoji.some((skinTone) => baseEmoji.emoji.includes(skinTone))
     )
 }
 
 const filterSkinToneVariants = ({ components, groups }: Data): Group[] => {
-  const skinTones = components.find(({ subgroup }) => subgroup === 'skin-tone')
-    ?.emoji.map(({ name }) => name)
-
-  if (!skinTones) {
-    throw new Error('No skinTone components found')
-  }
-
   return groups.map((group) => ({
     ...group,
     subgroups: group.subgroups.map((subgroup) => ({
       ...subgroup,
       emoji: filterSkinToneVariantsEmoji(
         subgroup.emoji,
-        components.find(({ subgroup }) => subgroup === 'skin-tone')?.emoji ??
-          [],
+        components,
       ),
     })),
   }))
