@@ -26,7 +26,7 @@ const groupRegex = /# group: ?(?<group>.*?)$/
 const subgroupRegex = /# subgroup: ?(?<subgroup>.*?)$/
 const emojiRegex = /; (?<status>[a-z-]*).*# (?<emoji>[^ ]*) [^ ]* (?<name>.*)$/
 
-const url = 'https://unicode.org/Public/emoji/14.0/emoji-test.txt'
+const url = 'https://unicode.org/Public/emoji/latest/emoji-test.txt'
 
 const parseComponent = (acc: Data, subgroup: string, emoji: Emoji): Data => {
   const s = acc.components.find((component) => component.subgroup === subgroup)

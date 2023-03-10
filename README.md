@@ -1,6 +1,6 @@
 # Emoji dataset JSON
 
-This repo contains some TypeScript code to parse the unicode emoji data into a simplyfied JSON file.
+This repo contains TypeScript code to parse the [unicode emoji data](https://unicode.org/Public/emoji/latest/emoji-test.txt) into a simplyfied JSON file.
 
 ## Generate dataset
 
@@ -11,6 +11,10 @@ deno task parse
 ```
 
 ## Format
+
+The format of the JSON file is quite minimal to keep the size overhead of the JSON format low.
+
+Skin tone variations are removed as individual emoji and are added to the emoji that they belong to. The name of each emoji has been included to allow for search functionality.
 
 The TypeScript definition of the output is:
 
