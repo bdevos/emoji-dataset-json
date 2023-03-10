@@ -3,7 +3,7 @@ import { write } from './write.ts'
 type Emoji = {
   emoji: string
   name: string
-  unqualified?: string[]
+  alt?: string[]
   skinTones?: string[]
 }
 
@@ -44,13 +44,11 @@ const parseEmoji = (acc: Data, line: string) => {
 
   if (status === 'fully-qualified') {
     group.subgroups[group.subgroups.length - 1].emoji.push({ emoji, name })
-  } else if (status === 'unqualified') {
+  } else if (status === 'unqualified' || status === 'minimally-qualified') {
     const subgroup = group.subgroups[group.subgroups.length - 1]
     const previous = subgroup.emoji[subgroup.emoji.length - 1]
 
-    previous.unqualified = previous.unqualified
-      ? [...previous.unqualified, emoji]
-      : [emoji]
+    previous.alt = previous.alt ? [...previous.alt, emoji] : [emoji]
   } else if (status === 'component') {
     parseComponent(acc, group.subgroups[group.subgroups.length - 1].subgroup, {
       emoji,
@@ -104,31 +102,24 @@ const filterSkinToneVariantsEmoji = (
   emoji: Emoji[],
   skinTones: Emoji[],
 ): Emoji[] => {
-  // Find emoji that have an alternative without skin tone
-  const emojiSkinToneVariants = emoji.filter(({ emoji, unqualified }) =>
-    skinTones.some(({ emoji: skinTone }) =>
-      emoji.includes(skinTone) ||
-      unqualified?.some((bla) => bla.includes(skinTone))
-    )
-  ).map(({ emoji }) => emoji)
+  const skinToneEmoji = skinTones.map(({ emoji }) => emoji)
 
-  if (emojiSkinToneVariants.length === 0) {
-    return emoji
-  }
+  return emoji
+    .map((baseEmoji) => {
+      const skinToneVersions = emoji.filter((compareEmoji) =>
+        skinToneEmoji.some((skinTone) =>
+          compareEmoji.emoji === baseEmoji.emoji + skinTone ||
+          baseEmoji.alt?.some((alt) => compareEmoji.emoji === alt + skinTone)
+        )
+      ).map(({ emoji }) => emoji)
 
-  return emoji.map((base) => {
-    const skinTones = emojiSkinToneVariants.filter((skinToneVariant) =>
-      skinToneVariant.includes(base.emoji) ||
-      base.unqualified?.some((unqualified) =>
-        skinToneVariant.includes(unqualified)
-      )
+      return {
+        ...baseEmoji,
+        skinTones: skinToneVersions.length > 0 ? skinToneVersions : undefined,
+      }
+    }).filter((baseEmoji) =>
+      !skinToneEmoji.some((skinTone) => baseEmoji.emoji.includes(skinTone))
     )
-    if (skinTones.length > 0) {
-      return { ...base, skinTones }
-    } else {
-      return base
-    }
-  }).filter(({ emoji }) => !emojiSkinToneVariants.includes(emoji))
 }
 
 const filterSkinToneVariants = ({ components, groups }: Data): Group[] => {
