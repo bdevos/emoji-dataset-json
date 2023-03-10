@@ -2,6 +2,11 @@
 
 This repo contains TypeScript code to parse the [unicode emoji data](https://unicode.org/Public/emoji/latest/emoji-test.txt) into a simplyfied JSON file.
 
+The generated [dataset](dataset/emoji.json) is relatively small (around 60KB).
+
+| :warning: | There are some issues when hair styles and skin tones are combined, I hope to have these edge cases figured out soon. |
+| :-------: | :-------------------------------------------------------------------------------------------------------------------- |
+
 ## Generate dataset
 
 The parse task can be started with the following command.
