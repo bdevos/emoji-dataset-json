@@ -1,0 +1,23 @@
+{
+  "fmt": {
+    "files": {
+      "include": ["src/"]
+    },
+    "options": {
+      "indentWidth": 2,
+      "singleQuote": true,
+      "semiColons": false
+    }
+  },
+  "lint": {
+    "files": {
+      "include": ["src/"]
+    },
+    "rules": {
+      "tags": ["recommended"]
+    }
+  },
+  "tasks": {
+    "parse": "deno run --allow-net --allow-write src/parse.ts"
+  }
+}
