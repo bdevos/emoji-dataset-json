@@ -1,5 +1,3 @@
-import { write } from './write.ts'
-
 type Emoji = {
   emoji: string
   name: string
@@ -24,13 +22,9 @@ export type Data = {
 
 const zeroWidthJoiner = '‍'
 
-const stringToUTF8Bytes = (str: string) => new TextEncoder().encode(str)
-
 const groupRegex = /# group: ?(?<group>.*?)$/
 const subgroupRegex = /# subgroup: ?(?<subgroup>.*?)$/
 const emojiRegex = /; (?<status>[a-z-]*).*# (?<emoji>[^ ]*) [^ ]* (?<name>.*)$/
-
-const url = 'https://unicode.org/Public/emoji/latest/emoji-test.txt'
 
 const parseComponent = (acc: Data, subgroup: string, emoji: Emoji): Data => {
   const s = acc.components.find((component) => component.subgroup === subgroup)
@@ -86,21 +80,6 @@ const parseGroups = (acc: Data, line: string): Data => {
   }
   return acc
 }
-
-// This is only to filter away 'Component' which contains no 'fully-qualified' emoji
-const filterGroupsWithoutEmoji = ({ components, groups }: Data): Data => ({
-  groups: groups.filter(({ subgroups }) =>
-    subgroups.some(({ emoji }) => emoji.length > 0)
-  ),
-  components,
-})
-
-const emojiCount = ({ groups }: Data) =>
-  groups.reduce(
-    (acc, value) =>
-      value.subgroups.reduce((acc, { emoji }) => emoji.length + acc, 0) + acc,
-    0,
-  )
 
 const filterSkinToneVariantsEmoji = (
   emoji: Emoji[],
@@ -159,7 +138,29 @@ const filterSkinToneVariantsEmoji = (
     )
 }
 
-const filterSkinToneVariants = ({ components, groups }: Data): Group[] => {
+export const emojiCount = ({ groups }: Data) =>
+  groups.reduce(
+    (acc, value) =>
+      value.subgroups.reduce((acc, { emoji }) => emoji.length + acc, 0) + acc,
+    0,
+  )
+
+// This is only to filter away 'Component' which contains no 'fully-qualified' emoji
+export const filterGroupsWithoutEmoji = (
+  { components, groups }: Data,
+): Data => ({
+  groups: groups.filter(({ subgroups }) =>
+    subgroups.some(({ emoji }) => emoji.length > 0)
+  ),
+  components,
+})
+
+export const parseLines = (lines: string[]): Data =>
+  lines.reduce(parseGroups, { groups: [], components: [] })
+
+export const filterSkinToneVariants = (
+  { components, groups }: Data,
+): Group[] => {
   return groups.map((group) => ({
     ...group,
     subgroups: group.subgroups.map((subgroup) => ({
@@ -171,21 +172,3 @@ const filterSkinToneVariants = ({ components, groups }: Data): Group[] => {
     })),
   }))
 }
-
-const groups = await fetch(url)
-  .then((result) => result.text())
-  .then((text) => text.split(/\r?\n/))
-  .then((lines) => lines.filter((line) => line.trim() !== ''))
-  .then((lines) => lines.reduce(parseGroups, { groups: [], components: [] }))
-  .then(filterGroupsWithoutEmoji)
-  .then((data) => {
-    console.log(
-      `Number of 'fully-qualified' emoji: ${
-        emojiCount(data)
-      } before filtering skin tone variants`,
-    )
-    return data
-  })
-  .then(filterSkinToneVariants)
-
-await write(groups)

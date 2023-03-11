@@ -18,6 +18,6 @@
     }
   },
   "tasks": {
-    "parse": "deno run --allow-net --allow-write src/parse.ts"
+    "parse": "deno run --allow-net --allow-write src/main.ts"
   }
 }
