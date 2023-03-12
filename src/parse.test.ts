@@ -2,20 +2,25 @@ import {
   assertEquals,
   assertThrows,
 } from 'https://deno.land/std@0.179.0/testing/asserts.ts'
-import { parseLines } from './parse.ts'
+import { parseLines, splitLines } from './parse.ts'
 
-const lines = `
+const text = `
 # emoji-test.txt
 # Date: 2022-08-12, 20:24:39 GMT
 # © 2022 Unicode®, Inc.
+
 # group: Smileys & Emotion
+
 # subgroup: face-smiling
 1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face
 1F603                                                  ; fully-qualified     # 😃 E0.6 grinning face with big eyes
+
 # subgroup: face-affection
 263A FE0F                                              ; fully-qualified     # ☺️ E0.6 smiling face
 263A                                                   ; unqualified         # ☺ E0.6 smiling face
+
 # group: People & Body
+
 # subgroup: person
 1F9D4                                                  ; fully-qualified     # 🧔 E5.0 person: beard
 1F9D4 1F3FB                                            ; fully-qualified     # 🧔🏻 E5.0 person: light skin tone, beard
@@ -24,11 +29,10 @@ const lines = `
 1F9D4 1F3FE                                            ; fully-qualified     # 🧔🏾 E5.0 person: medium-dark skin tone, beard
 1F9D4 1F3FF                                            ; fully-qualified     # 🧔🏿 E5.0 person: dark skin tone, beard
 1F9D4 200D 2642 FE0F                                   ; fully-qualified     # 🧔‍♂️ E13.1 man: beard
-1F9D4 200D 2642                                        ; minimally-qualified # 🧔‍♂ E13.1 man: beard
-`.split(/\n/)
+1F9D4 200D 2642                                        ; minimally-qualified # 🧔‍♂ E13.1 man: beard`
 
 Deno.test('Parse Lines', () => {
-  const parsed = parseLines(lines)
+  const parsed = parseLines(splitLines(text))
 
   assertEquals(parsed.groups.length, 2)
   assertEquals(parsed.groups[0].group, 'Smileys & Emotion')
@@ -66,10 +70,11 @@ Deno.test('Parse Lines', () => {
 })
 
 Deno.test('Parse Lines: No Subgroup', () => {
+  const noSubgroupText = `
+  '# group: Smileys & Emotion',
+      '1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face',`
+
   assertThrows(() => {
-    parseLines([
-      '# group: Smileys & Emotion',
-      '1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face',
-    ])
+    parseLines(splitLines(noSubgroupText))
   })
 })

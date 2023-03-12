@@ -2,18 +2,17 @@ import type { Data, Emoji, Group, Subgroup } from './parse.ts'
 
 const zeroWidthJoiner = '‍'
 
+const flattenEmoji = (components: Subgroup[], name: string) =>
+  components
+    .find(({ subgroup }) => name === subgroup)?.emoji
+    .map(({ emoji }) => emoji) ?? []
+
 const parseSkinToneEmoji = (
   emoji: Emoji[],
   components: Subgroup[],
 ): Emoji[] => {
-  const skinToneEmoji =
-    components.find(({ subgroup }) => subgroup === 'skin-tone')?.emoji.map((
-      { emoji },
-    ) => emoji) ?? []
-  const hairStyleEmoji =
-    components.find(({ subgroup }) => subgroup === 'hair-style')?.emoji.map((
-      { emoji },
-    ) => emoji) ?? []
+  const skinToneEmoji = flattenEmoji(components, 'skin-tone')
+  const hairStyleEmoji = flattenEmoji(components, 'hair-style')
 
   return emoji
     .map((baseEmoji) => {
@@ -59,16 +58,11 @@ const parseSkinToneEmoji = (
     )
 }
 
-export const parseSkinTones = (
-  { components, groups }: Data,
-): Group[] =>
+export const parseComponents = ({ components, groups }: Data): Group[] =>
   groups.map((group) => ({
     ...group,
     subgroups: group.subgroups.map((subgroup) => ({
       ...subgroup,
-      emoji: parseSkinToneEmoji(
-        subgroup.emoji,
-        components,
-      ),
+      emoji: parseSkinToneEmoji(subgroup.emoji, components),
     })),
   }))

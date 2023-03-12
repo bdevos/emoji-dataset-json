@@ -12,8 +12,6 @@ type Output = {
   }[]
 }[]
 
-const output = 'dataset/emoji.json'
-
 const simplifyOutput = (groups: Group[]): Output =>
   groups.map(({ group, subgroups }) => ({
     g: group,
@@ -25,7 +23,7 @@ const simplifyOutput = (groups: Group[]): Output =>
     })),
   }))
 
-export const write = async (groups: Group[]) => {
+export const write = async (output: string, groups: Group[]) => {
   try {
     await Deno.writeTextFile(output, JSON.stringify(simplifyOutput(groups)), {
       create: true,

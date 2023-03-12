@@ -77,5 +77,10 @@ const parseGroups = (data: Data, line: string): Data => {
   return data
 }
 
+export const splitLines = (text: string): string[] =>
+  text
+    .split(/\r?\n/)
+    .filter((line) => line.trim() !== '')
+
 export const parseLines = (lines: string[]): Data =>
   lines.reduce(parseGroups, { groups: [], components: [] })

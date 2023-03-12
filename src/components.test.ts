@@ -1,5 +1,5 @@
 import { assertEquals } from 'https://deno.land/std@0.179.0/testing/asserts.ts'
-import { parseSkinTones } from './components.ts'
+import { parseComponents } from './components.ts'
 
 const skinToneData = {
   groups: [{
@@ -55,7 +55,7 @@ const skinToneAndHairStyleData = {
 }
 
 Deno.test('Parse Skin Tone Variants', () => {
-  const filtered = parseSkinTones(skinToneData)
+  const filtered = parseComponents(skinToneData)
 
   assertEquals(filtered[0].subgroups[0].emoji.length, 1)
   assertEquals(filtered[0].subgroups[0].emoji[0], {
@@ -72,7 +72,7 @@ Deno.test('Parse Skin Tone Variants', () => {
 })
 
 Deno.test('Parse Skin Tone Variants With Hair Style', () => {
-  const filtered = parseSkinTones(skinToneAndHairStyleData)
+  const filtered = parseComponents(skinToneAndHairStyleData)
 
   assertEquals(filtered[0].subgroups[0].emoji.length, 1)
   assertEquals(filtered[0].subgroups[0].emoji[0], {
