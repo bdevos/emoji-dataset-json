@@ -1,8 +1,7 @@
 import { assertEquals } from 'https://deno.land/std@0.179.0/testing/asserts.ts'
 import { emojiCount } from './count.ts'
-import { Data } from './parse.ts'
 
-const data: Data = {
+const data = {
   groups: [
     {
       group: 'Group',
