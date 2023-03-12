@@ -1,3 +1,5 @@
+import { matchEmoji, matchGroup, matchSubgroup } from './match.ts'
+
 type Emoji = {
   emoji: string
   name: string
@@ -22,10 +24,6 @@ export type Data = {
 
 const zeroWidthJoiner = '‍'
 
-const groupRegex = /# group: ?(?<group>.*?)$/
-const subgroupRegex = /# subgroup: ?(?<subgroup>.*?)$/
-const emojiRegex = /; (?<status>[a-z-]*).*# (?<emoji>[^ ]*) [^ ]* (?<name>.*)$/
-
 const parseComponent = (acc: Data, subgroup: string, emoji: Emoji): Data => {
   const s = acc.components.find((component) => component.subgroup === subgroup)
   if (s) {
@@ -38,7 +36,7 @@ const parseComponent = (acc: Data, subgroup: string, emoji: Emoji): Data => {
 
 const parseEmoji = (acc: Data, line: string) => {
   const group = acc.groups[acc.groups.length - 1]
-  const { status, emoji, name } = emojiRegex.exec(line)?.groups ?? {}
+  const { status, emoji, name } = matchEmoji(line)
 
   if (status === 'fully-qualified') {
     group.subgroups[group.subgroups.length - 1].emoji.push({ emoji, name })
@@ -57,7 +55,7 @@ const parseEmoji = (acc: Data, line: string) => {
 
 const parseSubgroups = (acc: Data, line: string): Data => {
   const group = acc.groups[acc.groups.length - 1]
-  const subgroup = subgroupRegex.exec(line)?.groups?.subgroup
+  const subgroup = matchSubgroup(line)
 
   if (subgroup) {
     group.subgroups.push({ subgroup, emoji: [] })
@@ -71,7 +69,7 @@ const parseSubgroups = (acc: Data, line: string): Data => {
 }
 
 const parseGroups = (acc: Data, line: string): Data => {
-  const group = groupRegex.exec(line)?.groups?.group
+  const group = matchGroup(line)
 
   if (group) {
     acc.groups.push({ group, subgroups: [] })
