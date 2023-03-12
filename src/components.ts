@@ -7,54 +7,54 @@ const flattenEmoji = (components: Subgroup[], name: string) =>
     .find(({ subgroup }) => name === subgroup)?.emoji
     .map(({ emoji }) => emoji) ?? []
 
+const filterSkinToneVariations = (
+  base: Emoji,
+  compare: Emoji,
+  skinTones: string[],
+  hairStyle: string | undefined,
+) =>
+  hairStyle // The logic for finding skin tone variations if different when a hair style component is involved
+    ? skinTones.some((skinTone) =>
+      compare.emoji ===
+        base.emoji.replace(hairStyle, '').replace(
+            zeroWidthJoiner,
+            '',
+          ) + skinTone + zeroWidthJoiner + hairStyle
+    )
+    : skinTones.some((skinTone) =>
+      compare.emoji === base.emoji + skinTone ||
+      base.alt?.some((alt) => compare.emoji === alt + skinTone)
+    )
+
 const parseSkinToneEmoji = (
   emoji: Emoji[],
   components: Subgroup[],
 ): Emoji[] => {
-  const skinToneEmoji = flattenEmoji(components, 'skin-tone')
-  const hairStyleEmoji = flattenEmoji(components, 'hair-style')
+  const skinTones = flattenEmoji(components, 'skin-tone')
+  const hairStyles = flattenEmoji(components, 'hair-style')
 
   return emoji
-    .map((baseEmoji) => {
-      const skinToneVersions = emoji.filter((compareEmoji) =>
-        skinToneEmoji.some((skinTone) =>
-          compareEmoji.emoji === baseEmoji.emoji + skinTone ||
-          baseEmoji.alt?.some((alt) => compareEmoji.emoji === alt + skinTone)
-        )
-      ).map(({ emoji }) => emoji)
-
-      return {
-        ...baseEmoji,
-        skinTones: skinToneVersions.length > 0 ? skinToneVersions : undefined,
-      }
-    })
-    .map((baseEmoji) => {
-      const hairStyle = hairStyleEmoji.find((hairStyle) =>
-        baseEmoji.emoji.endsWith(hairStyle)
+    .map((base) => {
+      const hairStyle = hairStyles.find((hairStyle) =>
+        base.emoji.endsWith(hairStyle)
       )
 
-      if (!hairStyle) {
-        return baseEmoji
-      }
-
-      // REMARK: At the moment none of these hair style emoji have alt, so will skip that for brevety
-      const skinToneVersions = emoji.filter((compareEmoji) =>
-        skinToneEmoji.some((skinTone) =>
-          compareEmoji.emoji ===
-            baseEmoji.emoji.replace(hairStyle, '').replace(
-                zeroWidthJoiner,
-                '',
-              ) + skinTone + zeroWidthJoiner + hairStyle
+      const skinToneVariations = emoji
+        .filter((compare) =>
+          filterSkinToneVariations(base, compare, skinTones, hairStyle)
         )
-      ).map(({ emoji }) => emoji)
+        .map(({ emoji }) => emoji)
 
       return {
-        ...baseEmoji,
-        skinTones: skinToneVersions.length > 0 ? skinToneVersions : undefined,
+        ...base,
+        skinTones: skinToneVariations.length > 0
+          ? skinToneVariations
+          : undefined,
       }
     })
-    .filter((baseEmoji) =>
-      !skinToneEmoji.some((skinTone) => baseEmoji.emoji.includes(skinTone))
+    .filter((base) =>
+      // Filter out all emoji with skin tone components
+      !skinTones.some((skinTone) => base.emoji.includes(skinTone))
     )
 }
 
