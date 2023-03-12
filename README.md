@@ -4,8 +4,8 @@ This repo contains TypeScript code to parse the [unicode emoji data](https://uni
 
 The generated [dataset](dataset/emoji.json) is relatively small (around 60KB).
 
-| :warning: | I haven't had the time to properly check everything, so if you find any issues with the data, let me know |
-| :-------: | :-------------------------------------------------------------------------------------------------------- |
+| :warning: | A couple of emoji are missing, for example: 🧑🏻‍❤️‍🧑🏼 couple with heart: person, person, light skin tone, medium-light skin tone |
+| :-------: | :------------------------------------------------------------------------------------------------------------------------ |
 
 ## Generate dataset
 
@@ -37,7 +37,7 @@ type Output = {
 }[];
 ```
 
-Example:
+Example dataset:
 
 ```json
 [
