@@ -1,9 +1,7 @@
-import {
-  emojiCount,
-  filterGroupsWithoutEmoji,
-  filterSkinToneVariants,
-  parseLines,
-} from './parse.ts'
+import { parseSkinTones } from './components.ts'
+import { emojiCount } from './count.ts'
+import { filterGroupsWithoutEmoji } from './filter.ts'
+import { parseLines } from './parse.ts'
 import { write } from './write.ts'
 
 const url = 'https://unicode.org/Public/emoji/latest/emoji-test.txt'
@@ -22,5 +20,5 @@ await fetch(url)
     )
     return data
   })
-  .then(filterSkinToneVariants)
+  .then(parseSkinTones)
   .then(write)
