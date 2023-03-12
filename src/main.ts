@@ -1,6 +1,5 @@
 import { parseComponents } from './components.ts'
 import { emojiCount } from './count.ts'
-import { filterGroupsWithoutEmoji } from './filter.ts'
 import { parseLines, splitLines } from './parse.ts'
 import { write } from './write.ts'
 
@@ -11,7 +10,6 @@ await fetch(url)
   .then((result) => result.text())
   .then(splitLines)
   .then(parseLines)
-  .then(filterGroupsWithoutEmoji)
   .then((data) => {
     console.log(
       `Number of 'fully-qualified' emoji: ${

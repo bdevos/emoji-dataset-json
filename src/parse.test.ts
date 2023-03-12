@@ -19,6 +19,18 @@ const text = `
 263A FE0F                                              ; fully-qualified     # ☺️ E0.6 smiling face
 263A                                                   ; unqualified         # ☺ E0.6 smiling face
 
+# group: Component
+
+# subgroup: skin-tone
+1F3FB                                                  ; component           # 🏻 E1.0 light skin tone
+1F3FF                                                  ; component           # 🏿 E1.0 dark skin tone
+
+# subgroup: hair-style
+1F9B0                                                  ; component           # 🦰 E11.0 red hair
+
+# Component subtotal:		9
+# Component subtotal:		4	w/o modifiers
+
 # group: People & Body
 
 # subgroup: person
@@ -67,6 +79,14 @@ Deno.test('Parse Lines', () => {
     name: 'man: beard',
     alt: ['🧔‍♂'],
   })
+
+  assertEquals(parsed.components.length, 2)
+  assertEquals(parsed.components[0].subgroup, 'skin-tone')
+  assertEquals(parsed.components[0].emoji.length, 2)
+
+  assertEquals(parsed.components[1].subgroup, 'hair-style')
+  assertEquals(parsed.components[1].emoji.length, 1)
+  assertEquals(parsed.components[1].emoji[0], { emoji: '🦰', name: 'red hair' })
 })
 
 Deno.test('Parse Lines: No Subgroup', () => {

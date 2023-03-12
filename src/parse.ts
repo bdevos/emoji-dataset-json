@@ -1,3 +1,4 @@
+import { filterGroupsWithoutEmoji } from './filter.ts'
 import { matchEmoji, matchGroup, matchSubgroup } from './match.ts'
 
 export type Emoji = {
@@ -83,4 +84,6 @@ export const splitLines = (text: string): string[] =>
     .filter((line) => line.trim() !== '')
 
 export const parseLines = (lines: string[]): Data =>
-  lines.reduce(parseGroups, { groups: [], components: [] })
+  filterGroupsWithoutEmoji(
+    lines.reduce(parseGroups, { groups: [], components: [] }),
+  )
