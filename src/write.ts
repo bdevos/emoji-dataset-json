@@ -1,26 +1,23 @@
-import type { Group } from './parse.ts'
+import type { Emoji, Group } from './parse.ts'
+
+type EmojiOutput = [
+  string, // emoji character, name
+  string, // name
+  string[]?, // skin tone variants
+]
 
 type Output = {
   g: string // Group name
-  s: {
-    s: string // Subgroup name
-    e: [
-      string, // emoji character, name
-      string, // name
-      string[]?, // skin tone variants
-    ][]
-  }[]
+  e: EmojiOutput[]
 }[]
+
+const emojiOutput = ({ emoji, name, skinTones }: Emoji): EmojiOutput =>
+  skinTones ? [emoji, name, skinTones] : [emoji, name]
 
 const simplifyOutput = (groups: Group[]): Output =>
   groups.map(({ group, subgroups }) => ({
     g: group,
-    s: subgroups.map(({ subgroup, emoji }) => ({
-      s: subgroup,
-      e: emoji.map(({ emoji, name, skinTones }) =>
-        skinTones ? [emoji, name, skinTones] : [emoji, name]
-      ),
-    })),
+    e: subgroups.flatMap(({ emoji }) => emoji.map(emojiOutput)),
   }))
 
 export const write = async (output: string, groups: Group[]) => {
