@@ -15,10 +15,13 @@ const data = {
     },
     {
       group: 'Group',
-      subgroups: [{ subgroup: 'Subgroup', emoji: [{ emoji: '4️⃣', name: '' }] }, {
-        subgroup: 'Subgroup',
-        emoji: [{ emoji: '5️⃣', name: '' }, { emoji: '6️⃣', name: '' }],
-      }],
+      subgroups: [
+        { subgroup: 'Subgroup', emoji: [{ emoji: '4️⃣', name: '' }] },
+        {
+          subgroup: 'Subgroup',
+          emoji: [{ emoji: '5️⃣', name: '' }, { emoji: '6️⃣', name: '' }],
+        },
+      ],
     },
   ],
   components: [],
